@@ -1,0 +1,308 @@
+{
+  "$id": "https://schemas.tandem.com/call-survey/common_call_sections.json",
+  "type": "object",
+  "definitions": {
+    "staticInformation": {
+      "type": "object",
+      "description": "reserved for future static fields"
+    },
+    "callInfo": {
+      "type": "object",
+      "properties": {
+        "final_number_called": {
+          "title": "What was the final number you called?",
+          "description": "Use the format 123-456-7890. Leave blank if no number needed.",
+          "type": "string",
+          "pattern": "^$|^[0-9]{3}-[0-9]{3}-[0-9]{4}$"
+        },
+        "call_picked_up": {
+          "title": "Was the call picked up?",
+          "type": "string",
+          "oneOf": [
+            {
+              "const": "yes",
+              "title": "Yes"
+            },
+            {
+              "const": "no",
+              "title": "No"
+            }
+          ]
+        }
+      },
+      "required": [
+        "call_picked_up"
+      ]
+    },
+    "callNotPickedUpDiagnosis": {
+      "type": "object",
+      "properties": {
+        "call_not_picked_up_reason": {
+          "title": "Why was the call not picked up?",
+          "type": "string",
+          "oneOf": [
+            {
+              "const": "call_not_picked_up_reason_location_closed",
+              "title": "Location closed"
+            },
+            {
+              "const": "call_not_picked_up_reason_wrong_or_missing_number",
+              "title": "Wrong or missing number"
+            },
+            {
+              "const": "call_not_picked_up_reason_missing_ivr_info",
+              "title": "Missing IVR information"
+            },
+            {
+              "const": "call_not_picked_up_reason_ivr_ended",
+              "title": "Call ended by IVR"
+            },
+            {
+              "const": "call_not_picked_up_reason_voicemail",
+              "title": "Sent to voicemail"
+            },
+            {
+              "const": "call_not_picked_up_reason_long_hold",
+              "title": "Long hold time"
+            },
+            {
+              "const": "call_not_picked_up_reason_other",
+              "title": "Other"
+            }
+          ]
+        }
+      },
+      "required": [
+        "call_not_picked_up_reason"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "call_not_picked_up_reason": {
+                "const": "call_not_picked_up_reason_location_closed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "call_not_picked_up_next_open_datetime": {
+                "title": "What time will the location open (local time)?",
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "callPickedUpDiagnosis": {
+      "type": "object",
+      "properties": {
+        "was_patient_matched": {
+          "title": "Was the rep able to pull up the relevant patient information?",
+          "type": "string",
+          "oneOf": [
+            {
+              "const": "yes",
+              "title": "Yes"
+            },
+            {
+              "const": "no",
+              "title": "No"
+            }
+          ]
+        }
+      },
+      "required": [
+        "was_patient_matched"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "was_patient_matched": {
+                "const": "no"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "patient_match_info": {
+                "title": "Why not?",
+                "type": "string",
+                "default": null,
+                "oneOf": [
+                  {
+                    "const": "patient_match_info_patient_not_found",
+                    "title": "Patient not found in system"
+                  },
+                  {
+                    "const": "patient_match_info_missing_info",
+                    "title": "Missing info the rep needs"
+                  },
+                  {
+                    "const": "patient_match_info_info_mismatch",
+                    "title": "Patient info does not match what the plan has"
+                  },
+                  {
+                    "const": "patient_match_info_rep_refused_third_party",
+                    "title": "Refused to provide info to third party"
+                  },
+                  {
+                    "const": "patient_match_info_other",
+                    "title": "Other"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "patient_match_info"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "patient_match_info": {
+                      "const": "patient_match_info_missing_info"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "patient_match_info_missing_info_details": {
+                      "title": "What information are you missing that the rep needs?",
+                      "type": "string",
+                      "default": ""
+                    }
+                  },
+                  "required": [
+                    "patient_match_info_missing_info_details"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "patient_match_info": {
+                      "const": "patient_match_info_info_mismatch"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "patient_match_info_info_mismatch_details": {
+                      "title": "What patient information does not match?",
+                      "description": "Double check insurance info section to see if there is a different name or zipcode to try.",
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "anyOf": [
+                          {
+                            "const": "patient_match_info_missing_name",
+                            "title": "Name"
+                          },
+                          {
+                            "const": "patient_match_info_missing_dob",
+                            "title": "Date of birth"
+                          },
+                          {
+                            "const": "patient_match_info_missing_zipcode",
+                            "title": "Zipcode"
+                          },
+                          {
+                            "const": "patient_match_info_missing_other",
+                            "title": "Other (specify in comments)"
+                          },
+                          {
+                            "const": "patient_match_info_missing_not_specified",
+                            "title": "Did not specify"
+                          }
+                        ]
+                      },
+                      "minItems": 1,
+                      "uniqueItems": true
+                    }
+                  },
+                  "required": [
+                    "patient_match_info_info_mismatch_details"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "PAFormInfo": {
+      "type": "object",
+      "properties": {
+        "pa_form_info": {
+          "title": "Was the rep able to find the prior authorization?",
+          "type": "string",
+          "oneOf": [
+            {
+              "const": "yes",
+              "title": "Yes"
+            },
+            {
+              "const": "no",
+              "title": "No"
+            }
+          ]
+        }
+      },
+      "required": [
+        "pa_form_info"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/callInfo"
+    },
+    {
+      "if": {
+        "properties": {
+          "call_picked_up": {
+            "const": "no"
+          }
+        }
+      },
+      "then": {
+        "$ref": "#/definitions/callNotPickedUpDiagnosis"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call_picked_up": {
+            "const": "yes"
+          }
+        }
+      },
+      "then": {
+        "$ref": "#/definitions/callPickedUpDiagnosis"
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "call_picked_up": {
+            "const": "yes"
+          },
+          "was_patient_matched": {
+            "const": "yes"
+          }
+        },
+        "required": [
+          "call_picked_up",
+          "was_patient_matched"
+        ]
+      },
+      "then": {
+        "$ref": "#/definitions/PAFormInfo"
+      }
+    }
+  ]
+}
