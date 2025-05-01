@@ -1,5 +1,5 @@
 {
-  "$id": "https://schemas.tandem.com/call-survey/common_call_sections.json",
+  "$id": "https://github.com/hollyzhuang/jsontest/blob/main/common_call.json",
   "type": "object",
   "definitions": {
     "staticInformation": {
